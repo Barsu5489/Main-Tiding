@@ -24,6 +24,13 @@ app.get('/', (req, res) => {
 app.get('/about', (req, res) => {
     res.render('about-us.ejs')
 })
+app.get('/new-tyd', (req, res) => {
+    res.render('new-tyd')
+})
+app.post('/new-tyd',(res,req)=>{
+    
+})
+
 
 app.get('/login', (req, res) => {
     let user = {
