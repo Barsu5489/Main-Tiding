@@ -11,6 +11,25 @@ const connection = mysql.createConnection({
     password: '',
     database: 'tidings'
 })
+app.use(session({
+    secret:'elect',
+    resave:false,
+    saveUninitialized:false
+}))
+app.use((req,res,next)=>{
+
+    if(req.session.userId===undefined){
+        res.locals.isloggedIn = false;
+            
+       
+    }else{
+        res.locals.isloggedIn = true;
+        res.locals.username = req.session.username;
+       
+    }
+
+    next();
+})
 
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
@@ -25,11 +44,37 @@ app.get('/about', (req, res) => {
     res.render('about-us.ejs')
 })
 app.get('/new-tyd', (req, res) => {
-    res.render('new-tyd')
+    if(res.locals.isloggedIn){
+        res.render('new-tyd.ejs')
+    }else{
+        res.redirect('/login')
+    }
+
+   
 })
-app.post('/new-tyd',(res,req)=>{
-    
+app.post('/new-tyd',(req,res)=>{
+connection.query(
+    'INSERT INTO tyds (tyd, userID) VALUES(?,?)',
+    [req.body.tyd, req.session.userId],
+    (error,results)=>{
+        res.redirect('/tyds')
+    }
+)
 })
+app.get('/tyds',(req,res)=>{
+    if(res.locals.isloggedIn){
+        connection.query(
+            'SELECT * FROM tyds JOIN users ON tyds.userID = users.id',
+            (error,results)=>{
+                res.render('tyds.ejs',{tyds:results})
+            }
+        )
+        
+    }else{
+        res.redirect('/login')
+    }
+})
+
 
 
 app.get('/login', (req, res) => {
@@ -52,7 +97,9 @@ app.post('/login', (req, res) => {
             if (results.length > 0) {
                 bcrypt.compare(user.password, results[0].password, (error, isEqual) => {
                     if(isEqual) {
-                        res.redirect('/')
+                        req.session.userId = results[0].id
+                        req.session.username = results[0].fullname.split(' ')[0].toLowerCase()
+                        res.redirect('/tyds')
                     } else {
                         let message = 'Email/Password mistmatch.'
                         res.render('login.ejs', {error: true, message: message, user: user})
@@ -67,6 +114,11 @@ app.post('/login', (req, res) => {
     )    
 
 
+})
+app.get('/logout',(req,res)=>{
+    req.session.destroy((error)=>{
+        res.redirect('/')
+    })
 })
 
 app.get('/signup', (req, res) => {
@@ -99,7 +151,7 @@ app.post('/signup', (req, res) => {
                             'INSERT INTO users (email, fullname, gender, password) VALUES (?,?,?,?)',
                             [user.email, user.fullname, user.gender, hash],
                             (error, results) => {
-                                res.redirect('/')
+                                res.redirect('/login')
                             }
                         )
                     })

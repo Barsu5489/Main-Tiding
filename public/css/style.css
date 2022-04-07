@@ -122,3 +122,6 @@ new-tyd form label{
     align-self: center;
     margin-top: 10px;
 }
+.tyd{
+    border-bottom: 1px solid #1383a8;
+}
