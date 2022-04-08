@@ -6,11 +6,27 @@
 
     <% for(let tyd of tyds) {%>
         <% let username = tyd.fullname.split(' ')[0].toLowerCase() %> 
+        <% let avatar = Math.floor(Math.random()* 5) %> 
         <div class="tyd">
-            <h3>@<%= username  %> </h3>
-            <p><%= tyd.tyd  %> </p>
-            <small><%= tyd.dateposted  %> </small>
+            <div id="upper">
+                <img src="/images/avatars/<%= `${avatar}.png` %> " alt="">
+                <div>
+                    <h3>@<%= username  %> </h3>
+                    <p><%= tyd.tyd  %> </p>
+                </div>
+            </div>
+            <div id="lower">
+                <%    let gmt = tyd.dateposted.toString().split(' ').slice(0,5).join(' ')  %>
+                <small><%= gmt %> </small>
+                <div>
+                    <img src="/images/icons/heart.svg" alt="">
+                    <span class="likes"><%= avatar %> </span>
+                </div>
+            </div>
+          
+        
         </div>
         <% } %>  
 </main>
 <%- include('partials/footer')  %> 
+Lorem ipsum dolor sit, amet consectetur adipisicing elit. Tempora fugiat aspernatur delectus consequuntur recusandae ratione laboriosam dicta? Beatae, facere distinctio.

@@ -9,8 +9,10 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'tidings'
+    database: 'tidings',
+    timezone:'local'
 })
+
 app.use(session({
     secret:'elect',
     resave:false,
@@ -43,6 +45,18 @@ app.get('/', (req, res) => {
 app.get('/about', (req, res) => {
     res.render('about-us.ejs')
 })
+connection.query(
+    'SELECT dateposted FROM tyds',(error,results)=>{
+        
+        var data= results
+        var spli = data[0]
+        var data = spli.dateposted.toString()
+        let date_post = data.split(' ').slice(0,5).join(' ')
+        
+        console.log(date_post)
+        //console.log(new Date(data))
+    }
+)
 app.get('/new-tyd', (req, res) => {
     if(res.locals.isloggedIn){
         res.render('new-tyd.ejs')
@@ -52,6 +66,7 @@ app.get('/new-tyd', (req, res) => {
 
    
 })
+
 app.post('/new-tyd',(req,res)=>{
 connection.query(
     'INSERT INTO tyds (tyd, userID) VALUES(?,?)',
@@ -66,7 +81,9 @@ app.get('/tyds',(req,res)=>{
         connection.query(
             'SELECT * FROM tyds JOIN users ON tyds.userID = users.id',
             (error,results)=>{
+              
                 res.render('tyds.ejs',{tyds:results})
+            
             }
         )
         
